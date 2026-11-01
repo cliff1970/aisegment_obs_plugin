@@ -5,16 +5,53 @@ Verified on OBS 33.0.1, Visual Studio 2022 Build Tools (MSVC 14.44), CMake, Open
 
 ---
 
-## 1. Quick install (pre-built package)
+## 1. Install on a computer with no developer tools (pre-built package)
 
-If you have the `dist\` folder (from section 4):
+This is the path for any ordinary Windows PC. **Nothing needs to be compiled**, and no Visual Studio, CMake, OBS SDK or OpenCV download is needed on the target machine.
 
-1. **Close OBS completely** (check the system tray / Task Manager for `obs64.exe`).
-2. Double-click **`Install.bat`**.
-   - For the cleanest result, right-click -> **Run as administrator**. This lets it disable an old copy in `C:\Program Files\obs-studio\` (see section 6). Without admin it still installs, and prints a warning if an old copy exists.
-3. Start OBS -> right-click a video source -> **Filters** -> **+** -> **AI_remove_bg**.
+### 1.1 What the target PC needs
+
+| Requirement | Details | How to check / get it |
+|---|---|---|
+| Windows | Windows 11 **64-bit** (x64) - tested. Windows 10 x64 should work (OBS 33 supports it) but is untested. 32-bit Windows and ARM are not supported. | Settings -> System -> About -> "System type" |
+| OBS Studio | **Version 33 or newer, 64-bit**, installed normally (not a portable copy; for portable see 1.5). | In OBS: Help -> About. Download from obsproject.com. |
+| Visual C++ runtime | *Microsoft Visual C++ 2015-2022 Redistributable (x64)*. OBS installs it, so you normally already have it. | `winget install Microsoft.VCRedist.2015+.x64` |
+| Camera / video source | Any OBS video source (webcam, DroidCam, capture card). | - |
+| Disk space | About 100 MB. | - |
+| Administrator rights | Not required for the install itself. Only needed to disable an *older* copy of this plugin in `C:\Program Files\obs-studio\` (see 1.4). | - |
+| Internet | Not needed once you have the package. The plugin runs fully offline. | - |
+
+The plugin does not use any OBS GPU API itself; GPU/CPU load of the vendor segmentation engine (`wx_video_seg.dll`) has not been measured.
+
+### 1.2 Get the package
+You need the **`dist` folder** (or a zip of it) made by `installer\package.ps1` (section 4). It contains `Install.bat`, `Uninstall.bat`, two `.ps1` scripts, this guide, and a `payload\` folder with the plugin and its three required DLLs plus `data\`. Copy it to the target PC with a USB drive, network share or a GitHub Release download.
+
+If it came as a zip: right-click the zip -> Properties -> tick **Unblock** -> OK *before* extracting (or run `Unblock-File` on the files). Then extract it to a normal folder such as `C:\Temp\wx_seg_obs_dist`. Do not run it from inside the zip.
+
+### 1.3 Install (automatic)
+1. **Close OBS completely** (check the system tray and Task Manager for `obs64.exe`).
+2. Double-click **`Install.bat`**. If Windows SmartScreen says "Windows protected your PC", click *More info* -> *Run anyway* (the scripts are unsigned and are plain text you can read).
+3. The window lists the installed files and says `Installed to: C:\ProgramData\obs-studio\plugins\wx_seg_obs`.
+4. Start OBS -> right-click a video source -> **Filters** -> **+** -> **AI_remove_bg**.
 
 To remove: close OBS and double-click **`Uninstall.bat`**.
+
+### 1.4 If an older copy of this plugin is already installed
+An older install in `C:\Program Files\obs-studio\obs-plugins\64bit\` has the same module name and conflicts with the new one. Right-click `Install.bat` -> **Run as administrator** and it renames the old DLLs to `.old` for you (reversible). To do it by hand, in an elevated PowerShell with OBS closed:
+```powershell
+Rename-Item "C:\Program Files\obs-studio\obs-plugins\64bit\wx_seg_obs.dll"   wx_seg_obs.dll.old
+Rename-Item "C:\Program Files\obs-studio\obs-plugins\64bit\wx_video_seg.dll" wx_video_seg.dll.old
+```
+
+### 1.5 Manual install (no scripts) and portable OBS
+Copy the contents of `payload\` into `C:\ProgramData\obs-studio\plugins\wx_seg_obs\` so the DLLs sit directly in that folder, next to `data\`:
+```
+wx_seg_obs.dll, wx_video_seg.dll, opencv_world454.dll, data\
+```
+For a **portable** OBS, OBS ignores ProgramData; use a `plugins\wx_seg_obs\` folder in the OBS install root instead (OBS 33 flags the older `obs-plugins` folder as Legacy).
+
+### 1.6 Check that it worked
+See section 5. In short: the OBS log shows `[wx_seg_obs] plugin loaded successfully`, and Plugin Manager lists it without a Legacy label.
 
 ### What gets installed
 
@@ -33,7 +70,9 @@ This is OBS 33's current plugin layout: the DLL sits **directly** in the plugin 
 
 ---
 
-## 2. Build from source
+## 2. Build from source (developers only - not needed to install)
+
+Do this on a build machine, then ship the package from section 4 to other PCs.
 
 ### Prerequisites
 | Item | Notes |
@@ -88,7 +127,7 @@ After a successful build:
 ```powershell
 powershell -ExecutionPolicy Bypass -File installer\package.ps1
 ```
-This creates `dist\` (about 100 MB) containing `Install.bat`, `Uninstall.bat`, the scripts, this guide, and `payload\`. Zip `dist\` and copy it to any Windows 11 x64 machine with OBS 33.
+This creates `dist\` (about 100 MB) containing `Install.bat`, `Uninstall.bat`, the scripts, this guide, and `payload\`. Zip `dist\` and copy it to any Windows x64 machine with OBS 33 (then follow section 1). To share it publicly, attach the zip to a GitHub **Release** rather than committing it: it is about 100 MB and would bloat the repository.
 
 The installer uses only built-in PowerShell. If you later want a classic `Setup.exe`, the same `payload\` folder can be wrapped with Inno Setup.
 
