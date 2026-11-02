@@ -137,9 +137,25 @@ The installer uses only built-in PowerShell. If you later want a classic `Setup.
 
 1. Start OBS and open **Help -> Log Files -> View Current Log**.
 2. Look for:
-   - `[wx_seg_obs] plugin loaded successfully (version 0.4.0)`
+   - `[wx_seg_obs] plugin loaded successfully (version 0.4.1)` (use the version you installed)
    - `wx_seg_obs.dll` under *Loaded Modules*
 3. **Settings -> Plugins** (Plugin Manager) should list it **without** a Legacy label.
+
+---
+
+### Which version do I have?
+- OBS log line above.
+- Right-click `wx_seg_obs.dll` -> Properties -> Details -> *File version*.
+- `(Get-Item "$env:ProgramData\obs-studio\plugins\wx_seg_obs\wx_seg_obs.dll").VersionInfo.FileVersion`
+- The installer prints it when it finishes.
+
+### Versioning
+The version lives in one place: `project(wx_seg_obs VERSION x.y.z ...)` in `CMakeLists.txt`. It feeds the log line, the DLL's file/product version, and the installer output. Releases are tagged in git as `vX.Y.Z`. Use patch bumps for fixes (0.4.1 -> 0.4.2) and minor bumps for new features (0.4.x -> 0.5.0). To release: change the version, rebuild, run `installer\package.ps1`, commit, then `git tag vX.Y.Z`.
+
+| Version | Notes |
+|---|---|
+| 0.4.1 | OBS 33 build; fixes black frame at start-up; per-instance state; handles resolution changes. |
+| 0.4.0 | Original upstream build (`AI_remove_bg.zip`). |
 
 ---
 

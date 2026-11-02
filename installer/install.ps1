@@ -37,7 +37,8 @@ $oldBin = Join-Path $dest 'bin'
 if (Test-Path $oldBin) { Remove-Item $oldBin -Recurse -Force }
 
 Write-Host ""
-Write-Host "Installed to: $dest" -ForegroundColor Green
+$ver = (Get-Item (Join-Path $dest 'wx_seg_obs.dll')).VersionInfo.FileVersion
+Write-Host "Installed wx_seg_obs version $ver to: $dest" -ForegroundColor Green
 Get-ChildItem $dest -Recurse -File | ForEach-Object { "  " + $_.FullName.Substring($dest.Length + 1) }
 Write-Host ""
 Write-Host "Start OBS, then right-click a video source > Filters > + > AI_remove_bg."

@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
-project(wx_seg_obs VERSION 1.0 LANGUAGES C CXX)
+# Single source of truth for the plugin version: the OBS log line, the DLL's
+# Properties > Details tab and the installer all derive from it.
+project(wx_seg_obs VERSION 0.4.1 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -26,10 +28,14 @@ if(NOT OPENCV_WORLD_LIB)
                         "Supply OpenCV 4.5.4 (see README/build notes), then re-run CMake.")
 endif()
 
+enable_language(RC)
+configure_file(src/version.rc.in "${CMAKE_CURRENT_BINARY_DIR}/version.rc" @ONLY)
+
 add_library(wx_seg_obs MODULE
     src/wxsegobs.cpp
     src/plugin-main.cpp
     src/plugin-macros.generated.h
+    "${CMAKE_CURRENT_BINARY_DIR}/version.rc"
 )
 
 target_include_directories(wx_seg_obs PRIVATE
@@ -39,7 +45,7 @@ target_include_directories(wx_seg_obs PRIVATE
     "${OPENCV_ROOT}/include"
 )
 
-target_compile_definitions(wx_seg_obs PRIVATE _CRT_SECURE_NO_WARNINGS NOMINMAX WIN32_LEAN_AND_MEAN)
+target_compile_definitions(wx_seg_obs PRIVATE PLUGIN_VERSION="${PROJECT_VERSION}" _CRT_SECURE_NO_WARNINGS NOMINMAX WIN32_LEAN_AND_MEAN)
 target_compile_options(wx_seg_obs PRIVATE /MP /utf-8)
 
 target_link_libraries(wx_seg_obs PRIVATE

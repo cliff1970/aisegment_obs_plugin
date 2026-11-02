@@ -20,7 +20,10 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #define PLUGINNAME_H
 
 #define PLUGIN_NAME "wx_seg_obs"
-#define PLUGIN_VERSION "0.4.0"
+/* The standalone CMake build defines PLUGIN_VERSION from project(VERSION ...). */
+#ifndef PLUGIN_VERSION
+#define PLUGIN_VERSION "0.4.1"
+#endif
 
 #define blog(level, msg, ...) blog(level, "[" PLUGIN_NAME "] " msg, ##__VA_ARGS__)
 
