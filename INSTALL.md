@@ -21,7 +21,7 @@ This is the path for any ordinary Windows PC. **Nothing needs to be compiled**, 
 | Administrator rights | Not required for the install itself. Only needed to disable an *older* copy of this plugin in `C:\Program Files\obs-studio\` (see 1.4). | - |
 | Internet | Not needed once you have the package. The plugin runs fully offline. | - |
 
-The plugin does not use any OBS GPU API itself; GPU/CPU load of the vendor segmentation engine (`wx_video_seg.dll`) has not been measured.
+No GPU is required: the project README states it runs at about 25 FPS on an ordinary computer (the vendor's claim; not measured here).
 
 ### 1.2 Get the package
 You need the **`dist` folder** (or a zip of it) made by `installer\package.ps1` (section 4). It contains `Install.bat`, `Uninstall.bat`, two `.ps1` scripts, this guide, and a `payload\` folder with the plugin and its three required DLLs plus `data\`. Copy it to the target PC with a USB drive, network share or a GitHub Release download.
